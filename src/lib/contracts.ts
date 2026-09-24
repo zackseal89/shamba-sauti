@@ -18,6 +18,11 @@ export const askRequestSchema = z.object({
   language: languageSchema,
 });
 
+export const speechRequestSchema = z.object({
+  text: z.string().trim().min(1).max(8_000),
+  language: languageSchema,
+});
+
 export type Crop = z.infer<typeof cropSchema>;
 export type Language = z.infer<typeof languageSchema>;
 export type AgriculturalAnswer = z.infer<typeof agriculturalAnswerSchema>;

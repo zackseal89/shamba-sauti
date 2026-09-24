@@ -89,6 +89,10 @@ textarea:focus-visible {
     @apply grid size-10 shrink-0 place-items-center rounded-full border border-line bg-surface text-leaf transition-colors hover:border-leaf hover:bg-leaf-soft;
   }
 
+  .icon-button.recording {
+    @apply border-danger bg-danger text-white;
+  }
+
   .primary-button {
     @apply inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-leaf px-5 text-sm font-bold text-white transition-colors hover:bg-leaf-dark disabled:cursor-not-allowed disabled:bg-muted/40;
   }

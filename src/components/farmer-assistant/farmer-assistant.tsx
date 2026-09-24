@@ -4,6 +4,7 @@ import { type FormEvent, useState } from "react";
 import { ArrowUp, CircleAlert, LoaderCircle, Mic, Sparkles } from "lucide-react";
 
 import { AnswerPanel } from "@/components/farmer-assistant/answer-panel";
+import { useAudioRecorder } from "@/components/farmer-assistant/use-audio-recorder";
 import type { AgriculturalAnswer, Crop, Language, ProviderMode } from "@/lib/contracts";
 
 const samples: Record<Language, string> = {
@@ -12,8 +13,8 @@ const samples: Record<Language, string> = {
 };
 
 const copy = {
-  sw: { crop: "Zao", question: "Unaona nini shambani?", placeholder: "Eleza dalili, zilipoanza, na sehemu ya mmea...", sample: "Tumia swali la mfano", submit: "Pata ushauri", thinking: "Ninachunguza...", error: "Samahani, hatukuweza kupata jibu. Jaribu tena.", crops: { maize: "Mahindi", beans: "Maharagwe", tomatoes: "Nyanya" } },
-  en: { crop: "Crop", question: "What do you see in the field?", placeholder: "Describe the symptoms, when they began, and the affected part...", sample: "Use sample question", submit: "Get guidance", thinking: "Checking...", error: "We could not get an answer. Please try again.", crops: { maize: "Maize", beans: "Beans", tomatoes: "Tomatoes" } },
+  sw: { crop: "Zao", question: "Unaona nini shambani?", placeholder: "Eleza dalili, zilipoanza, na sehemu ya mmea...", sample: "Tumia swali la mfano", submit: "Pata ushauri", thinking: "Ninachunguza...", error: "Samahani, hatukuweza kupata jibu. Jaribu tena.", micError: "Kipaza sauti hakipatikani. Endelea kwa kuandika swali lako.", recording: "Simamisha kurekodi", record: "Rekodi swali kwa sauti", transcribing: "Ninatafsiri sauti...", crops: { maize: "Mahindi", beans: "Maharagwe", tomatoes: "Nyanya" } },
+  en: { crop: "Crop", question: "What do you see in the field?", placeholder: "Describe the symptoms, when they began, and the affected part...", sample: "Use sample question", submit: "Get guidance", thinking: "Checking...", error: "We could not get an answer. Please try again.", micError: "The microphone is unavailable. You can continue by typing your question.", recording: "Stop recording", record: "Record a voice question", transcribing: "Transcribing voice...", crops: { maize: "Maize", beans: "Beans", tomatoes: "Tomatoes" } },
 };
 
 export function FarmerAssistant({ initialProvider }: { initialProvider: ProviderMode }) {
@@ -24,6 +25,7 @@ export function FarmerAssistant({ initialProvider }: { initialProvider: Provider
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [provider, setProvider] = useState(initialProvider);
   const labels = copy[language];
+  const recorder = useAudioRecorder({ language, onTranscript: setQuestion, onProvider: setProvider });
 
   async function submitQuestion(event: FormEvent) {
     event.preventDefault();
@@ -47,13 +49,33 @@ export function FarmerAssistant({ initialProvider }: { initialProvider: Provider
     }
   }
 
-  function speakAnswer() {
-    if (!answer || !("speechSynthesis" in window)) return;
+  function playBrowserSpeech(text: string) {
+    if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
-    const text = [answer.summary, ...answer.checks, ...answer.actions, answer.caution, answer.escalation].join(". ");
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language === "sw" ? "sw-KE" : "en-KE";
     window.speechSynthesis.speak(utterance);
+  }
+
+  async function speakAnswer() {
+    if (!answer) return;
+    const text = [answer.summary, ...answer.checks, ...answer.actions, answer.caution, answer.escalation].join(". ");
+    if (provider === "mock") return playBrowserSpeech(text);
+
+    try {
+      const response = await fetch("/api/speech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, language }),
+      });
+      if (!response.ok) throw new Error("Speech unavailable");
+      const audioUrl = URL.createObjectURL(await response.blob());
+      const audio = new Audio(audioUrl);
+      audio.addEventListener("ended", () => URL.revokeObjectURL(audioUrl), { once: true });
+      await audio.play();
+    } catch {
+      playBrowserSpeech(text);
+    }
   }
 
   return (
@@ -85,10 +107,22 @@ export function FarmerAssistant({ initialProvider }: { initialProvider: Provider
           <textarea id="farmer-question" value={question} onChange={(event) => setQuestion(event.target.value)} placeholder={labels.placeholder} rows={5} maxLength={8000} />
           <div className="flex items-center justify-between border-t border-line px-3 py-2">
             <button className="text-button" type="button" onClick={() => setQuestion(samples[language])}><Sparkles aria-hidden="true" size={15} />{labels.sample}</button>
-            <button className="icon-button" type="button" aria-label="Record a voice question" title="Record a voice question"><Mic aria-hidden="true" size={19} /></button>
+            <button
+              className={`icon-button ${recorder.status === "recording" ? "recording" : ""}`}
+              type="button"
+              onClick={recorder.toggleRecording}
+              disabled={recorder.status === "transcribing"}
+              aria-label={recorder.status === "recording" ? labels.recording : labels.record}
+              title={recorder.status === "recording" ? labels.recording : labels.record}
+            >
+              {recorder.status === "transcribing" ? <LoaderCircle className="animate-spin" aria-hidden="true" size={19} /> : <Mic aria-hidden="true" size={19} />}
+            </button>
           </div>
         </div>
 
+        {recorder.status === "recording" && <p role="status" className="mt-3 text-sm font-semibold text-danger">● {labels.recording}</p>}
+        {recorder.status === "transcribing" && <p role="status" className="mt-3 text-sm font-medium text-muted">{labels.transcribing}</p>}
+        {recorder.status === "error" && <p role="alert" className="mt-3 flex items-center gap-2 text-sm font-medium text-danger"><CircleAlert aria-hidden="true" size={17} />{labels.micError}</p>}
         {status === "error" && <p role="alert" className="mt-3 flex items-center gap-2 text-sm font-medium text-danger"><CircleAlert aria-hidden="true" size={17} />{labels.error}</p>}
 
         <button className="primary-button mt-4" type="submit" disabled={status === "loading" || question.trim().length < 4}>

@@ -57,4 +57,18 @@ describe("FarmerAssistant", () => {
     expect(await screen.findByRole("alert")).toBeInTheDocument();
     expect(question).toHaveValue("Majani yana madoa ya kahawia");
   });
+
+  it("keeps text input available when microphone permission is denied", async () => {
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn().mockRejectedValue(new Error("denied")) },
+    });
+    const user = userEvent.setup();
+    render(<FarmerAssistant initialProvider="mock" />);
+
+    await user.click(screen.getByRole("button", { name: /rekodi|record/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/microphone|kipaza sauti/i);
+    expect(screen.getByRole("textbox")).toBeEnabled();
+  });
 });

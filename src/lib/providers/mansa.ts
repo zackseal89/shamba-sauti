@@ -1,5 +1,7 @@
 import "server-only";
 
+import { Buffer } from "node:buffer";
+
 import {
   agriculturalAnswerSchema,
   type AgriculturalAnswer,
@@ -61,4 +63,56 @@ export async function askMansa(
   }
 
   return parseMansaAnswer(payload.data.message);
+}
+
+export async function transcribeMansa(
+  audio: File,
+  language: "sw" | "en",
+  durationSeconds: number,
+  config: { apiKey: string; baseUrl: string },
+): Promise<string> {
+  const audioBase64 = Buffer.from(await audio.arrayBuffer()).toString("base64");
+  const response = await fetch(`${config.baseUrl}/v1/transcribe`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      audioBase64,
+      language: language === "sw" ? "Swahili" : "English",
+      mimeType: audio.type || "audio/webm",
+      filename: audio.name || "question.webm",
+      durationSeconds: Math.max(1, durationSeconds),
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error(`Mansa transcription failed with status ${response.status}`);
+  const payload = (await response.json()) as { data?: { transcript?: string } };
+  if (!payload.data?.transcript) throw new Error("Mansa returned an empty transcript");
+  return payload.data.transcript;
+}
+
+export async function speakMansa(
+  text: string,
+  language: "sw" | "en",
+  config: { apiKey: string; baseUrl: string },
+): Promise<ArrayBuffer> {
+  const response = await fetch(`${config.baseUrl}/v1/audio/speech`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${config.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text,
+      language: language === "sw" ? "Swahili" : "English",
+      voice: "female",
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error(`Mansa speech failed with status ${response.status}`);
+  return response.arrayBuffer();
 }

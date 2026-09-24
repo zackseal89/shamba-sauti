@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { AgriculturalAnswer, AskRequest, ProviderMode } from "@/lib/contracts";
-import { askMansa } from "@/lib/providers/mansa";
+import { askMansa, speakMansa, transcribeMansa } from "@/lib/providers/mansa";
 import { buildMockAnswer, selectProviderMode } from "@/lib/providers/provider";
 
 function getConfig() {
@@ -25,4 +25,27 @@ export async function answerQuestion(
       : buildMockAnswer(input);
 
   return { answer, provider: config.mode };
+}
+
+export async function transcribeQuestion(
+  audio: File,
+  language: "sw" | "en",
+  durationSeconds: number,
+) {
+  const config = getConfig();
+  const transcript = config.mode === "mansa"
+    ? await transcribeMansa(audio, language, durationSeconds, config)
+    : language === "sw"
+      ? "Majani ya mahindi yangu yanageuka manjano. Nifanye nini?"
+      : "My maize leaves are turning yellow. What should I do?";
+
+  return { transcript, provider: config.mode };
+}
+
+export async function createSpeech(text: string, language: "sw" | "en") {
+  const config = getConfig();
+  if (config.mode === "mock") return { mode: "browser" as const };
+
+  const audio = await speakMansa(text, language, config);
+  return { mode: "audio" as const, audio };
 }
