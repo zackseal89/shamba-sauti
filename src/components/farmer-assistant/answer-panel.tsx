@@ -36,17 +36,17 @@ export function AnswerPanel({
 
   const labels = isSwahili
     ? {
-        eyebrow: "Jibu la Shamba Sauti",
-        causes: "Kinachoweza kusababisha",
-        checks: "Kagua kwanza shambani",
-        actions: "Hatua za haraka za kuchukua",
-        listen: audioState === "playing" ? "Simamisha sauti" : "Sikiliza jibu kwa sauti",
+        eyebrow: "Ushauri wa Shamba Sauti",
+        causes: "Sababu zinazowezekana",
+        checks: "Vitu vya kuangalia shambani",
+        actions: "Hatua za kuchukua haraka",
+        listen: audioState === "playing" ? "Simamisha sauti" : "Sikiliza ushauri kwa sauti",
         loadingAudio: "Inatayarisha sauti...",
         note: "Tahadhari Muhimu",
-        escalateTitle: "Ushauri wa Kitaalamu",
+        escalateTitle: "Wakati wa Kuita Afisa wa Kilimo",
         sources: "Vyanzo vilivyothibitishwa mtandaoni",
         translateBtn: showingTranslated
-          ? "Onyesha kwa Kiswahili asili"
+          ? "Onyesha kwa Kiswahili"
           : "Tafsiri kwa Kiingereza (English)",
         translating: "Inatafsiri...",
       }

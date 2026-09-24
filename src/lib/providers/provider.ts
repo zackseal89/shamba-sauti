@@ -35,26 +35,26 @@ const englishAnswer: AgriculturalAnswer = {
 
 const swahiliAnswer: AgriculturalAnswer = {
   summary:
-    "Majani ya mahindi kuwa manjano yanaweza kusababishwa na upungufu wa naitrojeni, maji mengi au machache, au uharibifu wa mizizi. Muundo wa umanjano utasaidia kutambua chanzo.",
+    "Majani ya mahindi kuwa ya njano mara nyingi husababishwa na ukosefu wa mbolea ya nitrogen, maji kuwa mengi au shamba kukauka, au mizizi kuharibiwa na wadudu.",
   likelyCauses: [
-    "Upungufu wa naitrojeni, hasa majani ya chini yakianza kuwa manjano",
-    "Maji mengi au machache kuzunguka mizizi",
-    "Uharibifu wa mizizi kutokana na wadudu au udongo mgumu",
+    "Ukosefu wa mbolea ya nitrogen, hasa majani ya chini yakianza kuwa ya njano kwanza",
+    "Maji mengi yaliyosimama au shamba kukosa maji ya kutosha",
+    "Mizizi kuharibiwa na wadudu wa ardhini au udongo ulioshikana sana",
   ],
   checks: [
-    "Angalia kama umanjano unaanzia kwenye majani ya chini au mapya",
-    "Gusa udongo sentimita 5–8 chini na uangalie kama maji yamesimama",
-    "Kagua mizizi ya mimea michache kuona uharibifu au wadudu",
+    "Chunguza kama majani ya chini ndiyo yameanza kubadilika rangi au ni yale mapya ya juu",
+    "Gusa udongo kuona kama una unyevu unaofaa au kama maji yametuama shambani",
+    "Ng'oa mmea mmoja ulioathirika ukague mizizi kuona dalili za wadudu au kuoza",
   ],
   actions: [
-    "Rekebisha mifereji au ratiba ya kumwagilia kabla ya kuongeza pembejeo",
-    "Ondoa mimea iliyoharibika sana na linganisha dalili shambani",
-    "Tumia kipimo cha udongo au ushauri wa eneo lako kabla ya kuweka mbolea",
+    "Tengeneza mifereji ya kupitisha maji au rekebisha kumwagilia kabla ya kuweka dawa",
+    "Ondoa mimea iliyoathirika vibaya ili kuzuia kuenea kwa ugonjwa",
+    "Weka mbolea inayofaa (kama vile CAN au Urea) kulingana na ushauri wa afisa wa kilimo",
   ],
   caution:
-    "Huu ni mwongozo, si utambuzi wa uhakika. Usichanganye au kuongeza kemikali bila kusoma lebo na kupata ushauri wa eneo lako.",
+    "Huu ni mwongozo wa kukusaidia shambani, si utambuzi wa uhakika. Usichanganye au kutumia kemikali kiholela bila kusoma maelekezo ya lebo na kupata ushauri wa eneo lako.",
   escalation:
-    "Wasiliana na afisa ugani ikiwa umanjano unasambaa haraka, mimea inanyauka, au mizizi imeharibika sana.",
+    "Wasiliana na afisa wa kilimo (extension officer) wa eneo lako mara moja iwapo shida inasambaa kwa kasi au mimea inanyauka.",
 };
 
 export function buildMockAnswer(input: AskRequest): AgriculturalAnswer {

@@ -14,17 +14,17 @@ const samples: Record<Language, string> = {
 
 const copy = {
   sw: {
-    crop: "Zao",
-    question: "Unaona nini shambani?",
-    placeholder: "Eleza dalili, zilipoanza, na sehemu ya mmea...",
+    crop: "Zao lako",
+    question: "Ni shida gani unaona shambani?",
+    placeholder: "Eleza unachoona (kwa mfano: majani kuwa ya njano, wadudu, au mimea kukauka)...",
     sample: "Tumia swali la mfano",
     submit: "Pata ushauri",
-    thinking: "Ninachunguza...",
-    error: "Samahani, hatukuweza kupata jibu. Jaribu tena.",
-    micError: "Kipaza sauti hakipatikani. Endelea kwa kuandika swali lako.",
+    thinking: "Inachunguza shida yako...",
+    error: "Samahani, hatukuweza kupata ushauri kwa sasa. Tafadhali jaribu tena.",
+    micError: "Kipaza sauti hakipatikani. Tafadhali andika swali lako hapa chini.",
     recording: "Simamisha kurekodi",
     record: "Rekodi swali kwa sauti",
-    transcribing: "Ninatafsiri sauti...",
+    transcribing: "Inasikiliza sauti yako...",
     crops: { maize: "Mahindi", beans: "Maharagwe", tomatoes: "Nyanya" },
   },
   en: {

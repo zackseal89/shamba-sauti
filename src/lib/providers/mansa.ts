@@ -108,10 +108,14 @@ export function parseMansaAnswer(
 }
 
 function buildSystemPrompt(language: AskRequest["language"]): string {
-  const responseLanguage = language === "sw" ? "Swahili" : "English";
+  const languageInstructions =
+    language === "sw"
+      ? "Reply in natural, everyday Kenyan Swahili (Kiswahili cha kawaida cha Kenya kinachoeleweka na wakulima wote nchini). Do NOT use deep, literary, or complex Coastal Swahili (epuka Kiswahili kigumu au cha vitabu/pwani). Use simple, friendly, practical Kenyan phrasing (e.g. 'shamba', 'mbolea', 'wadudu waharibifu', 'afisa wa kilimo', 'kagua mimea')."
+      : "Reply in clear, friendly, and practical Kenyan English tailored for local smallholder farmers.";
 
-  return `You are a cautious agricultural assistant for smallholder farmers in Kenya.
-Reply in ${responseLanguage}. Return only valid JSON with these keys: summary, likelyCauses, checks, actions, caution, escalation.
+  return `You are a practical and cautious agricultural advisor for smallholder farmers in Kenya.
+${languageInstructions}
+Return only valid JSON with these keys: summary, likelyCauses, checks, actions, caution, escalation.
 likelyCauses, checks, and actions must be arrays of short strings. Never claim certainty from symptoms alone. Never invent pesticide or fertiliser dosages. Prefer observation, water management, sanitation, soil testing, label compliance, and local extension advice. Escalate rapidly spreading, severe, or unclear cases.`;
 }
 
@@ -266,6 +270,10 @@ export async function translateMansa(
       from: from === "sw" ? "Swahili" : "English",
       to: to === "sw" ? "Swahili" : "English",
       tone,
+      context:
+        to === "sw"
+          ? "Everyday conversational Kenyan Swahili for smallholder farmers"
+          : "Practical agricultural advisory in Kenya",
     }),
     cache: "no-store",
   });
