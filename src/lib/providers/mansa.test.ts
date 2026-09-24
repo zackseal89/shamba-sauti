@@ -19,6 +19,37 @@ describe("parseMansaAnswer", () => {
     expect(answer.escalation).toContain("extension officer");
   });
 
+  it("handles live Mansa output with web sources and array caution/escalation", () => {
+    const liveOutput = `\`\`\`json
+    {
+      "summary": "Fall armyworm risk detected.",
+      "likelyCauses": ["Larval feeding in whorl"],
+      "checks": ["Check 20 plants for windowpane holes"],
+      "actions": ["Handpick larvae or apply registered insecticide"],
+      "caution": [
+        "Do not apply unlabelled chemicals.",
+        "Rotate modes of action to prevent resistance."
+      ],
+      "escalation": [
+        "Alert sub-county agricultural officer if more than 30% infested."
+      ]
+    }
+    \`\`\`
+
+    <sources>
+    - https://www.kalro.org/fall-armyworm
+    - https://cabi.org/plantwise
+    </sources>`;
+
+    const answer = parseMansaAnswer(liveOutput);
+
+    expect(answer.summary).toBe("Fall armyworm risk detected.");
+    expect(answer.caution).toContain("Do not apply unlabelled chemicals.");
+    expect(answer.escalation).toContain("sub-county agricultural officer");
+    expect(answer.sources).toHaveLength(2);
+    expect(answer.sources?.[0]).toBe("https://www.kalro.org/fall-armyworm");
+  });
+
   it("rejects incomplete answers", () => {
     expect(() => parseMansaAnswer('{"summary":"Incomplete"}')).toThrow();
   });
